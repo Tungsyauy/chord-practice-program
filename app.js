@@ -9,7 +9,8 @@ let appState = {
     keySequences: {}, // Key sequences for each chord type
     currentSequenceKey: null, // Current chord type being used
     isListeningMode: false, // Whether we're in listening mode (audio played, waiting for show chord)
-    pendingChordData: null // Chord data waiting to be displayed
+    pendingChordData: null, // Chord data waiting to be displayed
+    lastAudioChordName: null // The last chord name that successfully played audio
 };
 
 // Simple test to see if JavaScript is working
@@ -96,7 +97,17 @@ function playChordAudio(chordName) {
     
     if (audioFiles[chordName]) {
         const audio = document.getElementById('chord-audio');
+        if (!audio) {
+            console.warn('🎵 Audio element not found');
+            return;
+        }
+
+        // Reset playback and set new source
+        audio.pause();
         audio.src = audioFiles[chordName];
+        audio.currentTime = 0;
+        appState.lastAudioChordName = chordName;
+        updatePlayAgainButtonState();
         
         // Play the audio
         audio.play().then(() => {
@@ -107,6 +118,21 @@ function playChordAudio(chordName) {
         });
     } else {
         console.log('🔇 No audio file available for:', chordName, '- but still waiting for Show Chord click');
+        appState.lastAudioChordName = null;
+        updatePlayAgainButtonState();
+    }
+}
+
+function updatePlayAgainButtonState() {
+    const playAgainBtn = document.getElementById('play-again-btn');
+    if (!playAgainBtn) {
+        return;
+    }
+
+    if (appState.lastAudioChordName && audioFiles[appState.lastAudioChordName]) {
+        playAgainBtn.disabled = false;
+    } else {
+        playAgainBtn.disabled = true;
     }
 }
 
@@ -185,6 +211,7 @@ function preventZoomAndScaling() {
 function initializeApp() {
     setupEventListeners();
     showScreen('welcome');
+    updatePlayAgainButtonState();
 }
 
 function setupEventListeners() {
@@ -241,6 +268,15 @@ function setupEventListeners() {
 
     // Chord practice controls
     document.getElementById('generate-chord-btn').addEventListener('click', generateChord);
+
+    const playAgainBtn = document.getElementById('play-again-btn');
+    if (playAgainBtn) {
+        playAgainBtn.addEventListener('click', () => {
+            if (appState.lastAudioChordName) {
+                playChordAudio(appState.lastAudioChordName);
+            }
+        });
+    }
 }
 
 function showScreen(screenName) {
@@ -262,6 +298,8 @@ function showScreen(screenName) {
             const notation = document.getElementById('notation');
             if (chordDisplay) chordDisplay.textContent = 'Click "Generate Chord" to start';
             if (notation) notation.innerHTML = '';
+            appState.lastAudioChordName = null;
+            updatePlayAgainButtonState();
         }
     }
 }
@@ -303,7 +341,6 @@ function generateChord() {
     // 按照要求：和弦不会立即显示，先清空显示
     document.getElementById('chord-display').textContent = 'Listen to the chord...';
     document.getElementById('notation').innerHTML = '';
-    document.getElementById('current-key-display').textContent = '?';
     
     // Store chord data for later display
     appState.pendingChordData = { chordName, selectedChordType };
@@ -919,7 +956,6 @@ function displayChord(chordName, chordType) {
     
     // Display results
     document.getElementById('chord-display').textContent = chordName;
-    document.getElementById('current-key-display').textContent = appState.currentKey;
     
     // Draw the chord on staff
     drawStaff(enharmonicFixedVoicing);
