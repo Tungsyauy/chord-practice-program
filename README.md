@@ -6,11 +6,11 @@ A web-based chord practice application for studying dominant 7th chord voicings 
 
 - **Dual-Staff Display**: Shows chords with both treble and bass clef using ABC.js
 - **Multiple Chord Types**: 
-  - C7: Basic dominant 7th chord
-  - C7sus4: Suspended 4th dominant chord
-  - C7#11: Sharp 11 dominant chord
-  - C7b13#9: Flat 13 sharp 9 dominant chord
-  - C7b9: Flat 9 dominant chord
+  - X7: Basic dominant 7th chord
+  - X7sus4: Suspended 4th dominant chord
+  - X7#11: Sharp 11 dominant chord
+  - X7b13#9: Flat 13 sharp 9 dominant chord
+  - X7b9: Flat 9 dominant chord
 - **Transposition**: Transpose chords to all 12 keys
 - **Responsive Design**: Works on desktop and mobile devices
 - **Glassmorphism UI**: Modern, elegant user interface
