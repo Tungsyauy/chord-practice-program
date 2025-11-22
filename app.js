@@ -166,6 +166,10 @@ function getNextKey(chordType) {
 // Play audio for a chord if available
 function playChordAudio(chordName) {
     console.log('🎵 Attempting to play audio for:', chordName);
+    console.log('🎵 audioFiles object exists:', typeof audioFiles !== 'undefined');
+    console.log('🎵 Looking for key in audioFiles:', chordName);
+    console.log('🎵 Available keys in audioFiles:', Object.keys(audioFiles).slice(0, 10), '...');
+    console.log('🎵 audioFiles[chordName]:', audioFiles[chordName]);
     
     if (audioFiles[chordName]) {
         const audio = document.getElementById('chord-audio');
