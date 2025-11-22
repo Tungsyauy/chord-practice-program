@@ -1,5 +1,18 @@
 // app.js - Main application logic for the Dominant 7th Chord Practice Program
 
+// Detect base path for GitHub Pages compatibility
+// If the site is hosted at a subdirectory (e.g., /chord-practice-program/), 
+// we need to include that in our paths
+const getBasePath = () => {
+    const path = window.location.pathname;
+    // Remove trailing slash and filename to get base directory
+    const basePath = path.substring(0, path.lastIndexOf('/') + 1);
+    return basePath;
+};
+
+const BASE_PATH = getBasePath();
+console.log('🌐 Base path detected:', BASE_PATH);
+
 // Application state
 let appState = {
     currentScreen: 'welcome',
@@ -165,10 +178,13 @@ function playChordAudio(chordName) {
         audio.pause();
         audio.currentTime = 0;
         
-        // Encode the URL properly (especially for F#7 which has # in filename)
+        // Construct full path with base path for GitHub Pages compatibility
         const audioPath = audioFiles[chordName];
-        // Replace # with %23 in the path (needed for F#7.mp3)
-        const encodedPath = audioPath.replace(/#/g, '%23');
+        // Combine base path with audio path (base path already ends with /)
+        const fullPath = BASE_PATH + audioPath;
+        // Encode the URL properly (especially for F#7 which has # in filename)
+        // Replace # with %23 in the path (needed for F#7.mp3, F#7#11.mp3, etc.)
+        const encodedPath = fullPath.replace(/#/g, '%23');
         console.log('🎵 Loading audio from:', encodedPath);
         
         // Set up event handlers
