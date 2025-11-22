@@ -37,20 +37,79 @@ const chordVoicings = {
     'C7sus4': ['C2', 'F2', 'Bb2', '|', 'D3', 'A3'],
     'C7#11': ['C2', 'E2', 'Bb2', '|', 'D3', 'F#3', 'A3'],
     'C7b13#9': ['C2', 'Bb2', '|', 'E3', 'Ab3', 'Eb4'],
-    'C7b9': ['C2', 'Bb2', '|', 'C#3', 'E3', 'A3']
+    'C7b9': ['C2', 'Bb2', '|', 'E3', 'A3', 'C#4']
 };
 
 // Available chord types
 const chordTypes = ['C7', 'C7sus4', 'C7#11', 'C7b13#9', 'C7b9'];
 
-// Audio file mapping (add more as audio files become available)
+// Audio file mapping for all chord types
 const audioFiles = {
-    'C7': 'audio/C7.m4a',
-    'F7': 'audio/F7.m4a'
-    // Add more audio files here as they become available
-    // 'G7': 'audio/G7.m4a',
-    // 'D7': 'audio/D7.m4a',
-    // etc.
+    // X7 chords
+    'A7': 'audio/A7.mp3',
+    'Ab7': 'audio/Ab7.mp3',
+    'B7': 'audio/B7.mp3',
+    'Bb7': 'audio/Bb7.mp3',
+    'C7': 'audio/C7.mp3',
+    'D7': 'audio/D7.mp3',
+    'Db7': 'audio/Db7.mp3',
+    'E7': 'audio/E7.mp3',
+    'Eb7': 'audio/Eb7.mp3',
+    'F#7': 'audio/F#7.mp3',
+    'F7': 'audio/F7.mp3',
+    'G7': 'audio/G7.mp3',
+    // X7sus4 chords
+    'A7sus4': 'audio/A7sus4.mp3',
+    'Ab7sus4': 'audio/Ab7sus4.mp3',
+    'B7sus4': 'audio/B7sus4.mp3',
+    'Bb7sus4': 'audio/Bb7sus4.mp3',
+    'C7sus4': 'audio/C7sus4.mp3',
+    'D7sus4': 'audio/D7sus4.mp3',
+    'Db7sus4': 'audio/Db7sus4.mp3',
+    'E7sus4': 'audio/E7sus4.mp3',
+    'Eb7sus4': 'audio/Eb7sus4.mp3',
+    'F#7sus4': 'audio/F#7sus4.mp3',
+    'F7sus4': 'audio/F7sus4.mp3',
+    'G7sus4': 'audio/G7sus4.mp3',
+    // X7#11 chords
+    'A7#11': 'audio/A7#11.mp3',
+    'Ab7#11': 'audio/Ab7#11.mp3',
+    'B7#11': 'audio/B7#11.mp3',
+    'Bb7#11': 'audio/Bb7#11.mp3',
+    'C7#11': 'audio/C7#11.mp3',
+    'D7#11': 'audio/D7#11.mp3',
+    'Db7#11': 'audio/Db7#11.mp3',
+    'E7#11': 'audio/E7#11.mp3',
+    'Eb7#11': 'audio/Eb7#11.mp3',
+    'F#7#11': 'audio/F#7#11.mp3',
+    'F7#11': 'audio/F7#11.mp3',
+    'G7#11': 'audio/G7#11.mp3',
+    // X7b13#9 chords
+    'A7b13#9': 'audio/A7b13#9.mp3',
+    'Ab7b13#9': 'audio/Ab7b13#9.mp3',
+    'B7b13#9': 'audio/B7b13#9.mp3',
+    'Bb7b13#9': 'audio/Bb7b13#9.mp3',
+    'C7b13#9': 'audio/C7b13#9.mp3',
+    'D7b13#9': 'audio/D7b13#9.mp3',
+    'Db7b13#9': 'audio/Db7b13#9.mp3',
+    'E7b13#9': 'audio/E7b13#9.mp3',
+    'Eb7b13#9': 'audio/Eb7b13#9.mp3',
+    'F#7b13#9': 'audio/F#7b13#9.mp3',
+    'F7b13#9': 'audio/F7b13#9.mp3',
+    'G7b13#9': 'audio/G7b13#9.mp3',
+    // X7b9 chords
+    'A7b9': 'audio/A7b9.mp3',
+    'Ab7b9': 'audio/Ab7b9.mp3',
+    'B7b9': 'audio/B7b9.mp3',
+    'Bb7b9': 'audio/Bb7b9.mp3',
+    'C7b9': 'audio/C7b9.mp3',
+    'D7b9': 'audio/D7b9.mp3',
+    'Db7b9': 'audio/Db7b9.mp3',
+    'E7b9': 'audio/E7b9.mp3',
+    'Eb7b9': 'audio/Eb7b9.mp3',
+    'F#7b9': 'audio/F#7b9.mp3',
+    'F7b9': 'audio/F7b9.mp3',
+    'G7b9': 'audio/G7b9.mp3'
 };
 
 // Fisher-Yates shuffle algorithm
@@ -102,20 +161,75 @@ function playChordAudio(chordName) {
             return;
         }
 
-        // Reset playback and set new source
+        // Stop any current playback and clear previous source
         audio.pause();
-        audio.src = audioFiles[chordName];
         audio.currentTime = 0;
-        appState.lastAudioChordName = chordName;
-        updatePlayAgainButtonState();
         
-        // Play the audio
-        audio.play().then(() => {
-            console.log('🎵 Audio playing successfully for:', chordName);
-        }).catch(error => {
-            console.error('❌ Error playing audio:', error);
-            console.log('🔇 Audio failed, but still waiting for Show Chord click');
-        });
+        // Encode the URL properly (especially for F#7 which has # in filename)
+        const audioPath = audioFiles[chordName];
+        // Replace # with %23 in the path (needed for F#7.mp3)
+        const encodedPath = audioPath.replace(/#/g, '%23');
+        console.log('🎵 Loading audio from:', encodedPath);
+        
+        // Set up event handlers
+        const onCanPlay = () => {
+            console.log('🎵 Audio file loaded and ready:', encodedPath);
+            appState.lastAudioChordName = chordName;
+            updatePlayAgainButtonState();
+            
+            // Play the audio
+            const playPromise = audio.play();
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    console.log('🎵 Audio playing successfully for:', chordName);
+                }).catch(error => {
+                    console.error('❌ Error playing audio:', error);
+                    console.log('🔇 Audio failed to play, but still waiting for Show Chord click');
+                });
+            }
+        };
+        
+        const onError = (event) => {
+            console.error('❌ Error loading audio file:', encodedPath);
+            console.error('Error details:', event);
+            console.error('Audio element state:', {
+                src: audio.src,
+                networkState: audio.networkState,
+                readyState: audio.readyState,
+                error: audio.error
+            });
+            console.log('🔇 Audio failed to load, but still waiting for Show Chord click');
+            appState.lastAudioChordName = null;
+            updatePlayAgainButtonState();
+        };
+        
+        // Remove any existing listeners first (cleanup)
+        // Create wrapper functions to ensure we can remove the exact same function reference
+        const wrappedOnCanPlay = onCanPlay;
+        const wrappedOnError = onError;
+        
+        // Clear previous source and wait a tiny bit before setting new one
+        audio.src = '';
+        
+        // Use setTimeout to ensure the previous source is fully cleared
+        setTimeout(() => {
+            // Set up new event listeners (using once: true for automatic cleanup)
+            audio.addEventListener('canplaythrough', wrappedOnCanPlay, { once: true });
+            audio.addEventListener('loadeddata', wrappedOnCanPlay, { once: true }); // Fallback for faster loading
+            audio.addEventListener('error', wrappedOnError, { once: true });
+            
+            // Set the source - this will trigger loading
+            audio.src = encodedPath;
+            console.log('🎵 Set audio src to:', audio.src);
+            
+            // Explicitly trigger loading
+            try {
+                audio.load();
+                console.log('🎵 Called audio.load()');
+            } catch (e) {
+                console.warn('Warning during audio.load():', e);
+            }
+        }, 10); // Small delay to ensure previous source is cleared
     } else {
         console.log('🔇 No audio file available for:', chordName, '- but still waiting for Show Chord click');
         appState.lastAudioChordName = null;
